@@ -6,7 +6,7 @@
       <p>Fabricant : {{ aircraft.manufacturer }}</p>
       <p>Modèle : {{ aircraft.model }}</p>
       <p>Année : {{ aircraft.year }}</p>
-      <img :src="aircraft.image_url" alt="photo avion" width="400">
+      <img :src="aircraft.image_url" alt="photo avion" width="400" />
       <p>{{ aircraft.description }}</p>
     </div>
     <div v-else>
@@ -15,16 +15,26 @@
   </v-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 
+interface Plane {
+  id: number;
+  name: string;
+  manufacturer: string;
+  model: string;
+  year: number;
+  image_url: string;
+  description: string;
+}
+
 const route = useRoute();
-const aircraft = ref(null);
+const aircraft = ref<Plane | null>(null);
 
 onMounted(async () => {
-  const { data } = await axios.get('/api/aircraft');
-  aircraft.value = data.find(p => p.id == route.params.id);
+  const { data } = await axios.get<Plane[]>('/api/aircraft');
+  aircraft.value = data.find((p: Plane) => p.id === Number(route.params.id)) || null;
 });
 </script>

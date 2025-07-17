@@ -3,12 +3,11 @@
     <v-row>
       <v-col v-for="plane in planes" :key="plane.id" cols="12" sm="6" md="4">
         <v-card>
-          <v-img :src="plane.image_url" height="200px"></v-img>
+          <v-img :src="plane.image_url" height="200px" />
           <v-card-title>{{ plane.name }}</v-card-title>
           <v-card-subtitle>{{ plane.manufacturer }} {{ plane.model }}</v-card-subtitle>
           <v-card-text>
-            {{ plane.description }}
-            <br/>
+            {{ plane.description }}<br />
             <strong>Disponibilités :</strong>
             <div v-for="(res, index) in parseReservations(plane.reservations)" :key="index">
               {{ res }}
@@ -24,32 +23,42 @@
   </v-container>
 </template>
 
-<script setup>
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
 
-const planes = ref([]);
-const router = useRouter();
+interface Plane {
+  id: number
+  image_url: string
+  name: string
+  manufacturer: string
+  model: string
+  description: string
+  reservations?: string
+}
+
+const planes = ref<Plane[]>([])
+const router = useRouter()
 
 onMounted(async () => {
-  const { data } = await axios.get('/api/aircraft');
-  planes.value = data;
-});
+  const { data } = await axios.get('/api/aircraft')
+  planes.value = data
+})
 
-const goToReservation = (plane) => {
-  router.push({ name: 'reservation', params: { id: plane.id } });
-};
+const goToReservation = (plane: Plane) => {
+  router.push({ name: 'reservation', params: { id: plane.id } })
+}
 
-const goToDetails = (plane) => {
-  router.push({ name: 'aircraft-details', params: { id: plane.id } });
-};
+const goToDetails = (plane: Plane) => {
+  router.push({ name: 'aircraft-details', params: { id: plane.id } })
+}
 
-const parseReservations = (str) => {
-  if (!str) return ['Aucune réservation'];
-  return str.split(',').map(r => {
-    const [start, end] = r.split('|');
-    return `${start} → ${end}`;
-  });
-};
+const parseReservations = (str: string | undefined): string[] => {
+  if (!str) return ['Aucune réservation']
+  return str.split(',').map((r: string) => {
+    const [start, end] = r.split('|')
+    return `${start} → ${end}`
+  })
+}
 </script>

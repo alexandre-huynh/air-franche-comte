@@ -16,29 +16,41 @@
   </v-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 
+interface Plane {
+  id: number;
+  name: string;
+  manufacturer: string;
+  model: string;
+  year: number;
+  image_url: string;
+  description: string;
+}
+
 const route = useRoute();
 const router = useRouter();
 
-const plane = ref(null);
-const selectedDate = ref(null);
+const plane = ref<Plane | null>(null);
+const selectedDate = ref<string | null>(null);
 const today = new Date().toISOString().split('T')[0];
-const price = 500; // ou récupéré dynamiquement
+const price = 500;
 
 onMounted(async () => {
-  const { data } = await axios.get('/api/aircraft');
-  plane.value = data.find(p => p.id == route.params.id);
+  const { data } = await axios.get<Plane[]>('/api/aircraft');
+  plane.value = data.find((p: Plane) => p.id === Number(route.params.id)) || null;
 });
 
-const selectDate = ({ date }) => {
+const selectDate = ({ date }: { date: string }) => {
   selectedDate.value = date;
 };
 
 const confirmReservation = async () => {
+  if (!plane.value || !selectedDate.value) return;
+
   try {
     await axios.post('/api/aircraft/reserve', {
       aircraft_id: plane.value.id,
@@ -46,9 +58,11 @@ const confirmReservation = async () => {
       end_datetime: selectedDate.value,
     });
     router.push({ name: 'account' });
-  } catch (err) {
-    if (err.response?.status === 401) {
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err) && err.response?.status === 401) {
       router.push({ name: 'login' });
+    } else {
+      console.error(err);
     }
   }
 };
@@ -57,3 +71,4 @@ const cancel = () => {
   router.push({ name: 'gallery' });
 };
 </script>
+
