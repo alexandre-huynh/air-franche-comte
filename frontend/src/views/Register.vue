@@ -38,6 +38,8 @@
         <button type="submit">Register</button>
       </form>
 
+      <hr>
+
       <p class="register-link">
         Already have an account?
         <button @click="goToLogin">Login</button>
@@ -58,7 +60,7 @@ const password = ref('')
 const router = useRouter()
 
 async function register() {
-  const res = await fetch('/api/register', {
+  const res = await fetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -72,7 +74,7 @@ async function register() {
 
   if (res.ok) {
     alert('Registration successful! Please login.')
-    router.push('/login')
+    await router.push('/login')
   } else {
     alert('Registration failed. Please try again.')
   }
@@ -155,22 +157,26 @@ function goToLogin() {
 }
 
 .register-link {
-  margin-top: 1.5rem;
   color: #666;
   font-size: 0.9rem;
 }
 
 .register-link button {
-  background: none;
+  background: none !important;
   border: none;
   color: #2F7CFF;
   cursor: pointer;
   font-weight: bold;
   text-decoration: underline;
-  margin-left: 0.3rem;
 }
 
 .register-link button:hover {
   color: #255FCC;
+}
+
+hr {
+  margin: 1.5rem 0 0.5rem;
+  border: none;
+  border-top: 1px solid #ddd;
 }
 </style>

@@ -21,6 +21,8 @@
         />
         <button type="submit">Login</button>
 
+        <hr>
+
         <button type="button" class="register-btn" @click="goToRegister">
           Register
         </button>
@@ -60,7 +62,7 @@ async function login() {
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
 
-    router.push('/profile');
+    await router.push('/profile');
 
   } else {
     alert('Invalid credentials');
@@ -155,7 +157,6 @@ function goToRegister() {
   background: #fff;
   color: #2F7CFF;
   border: 2px solid #2F7CFF;
-  margin-top: 0.5rem;
   padding: 0.75rem;
   border-radius: 8px;
   font-size: 1rem;
@@ -166,5 +167,11 @@ function goToRegister() {
 .register-btn:hover {
   background: #2F7CFF;
   color: #fff;
+}
+
+hr {
+  margin: 0.5rem 0;
+  border: none;
+  border-top: 1px solid #ddd;
 }
 </style>
