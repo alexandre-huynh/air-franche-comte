@@ -2,7 +2,13 @@
 
 Init with this
 ```bash
-npm install express mysql2 path dotenv
+git init -y
+npm install
 ```
 
 Create a .env and fill variables, refer to .env_example
+
+Run app
+```bash
+node index.js
+```
