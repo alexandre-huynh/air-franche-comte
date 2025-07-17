@@ -46,24 +46,24 @@ const username = ref('')
 let sessionUser: SessionUser | null = null
 
 onMounted(() => {
-  const rawUser = localStorage.getItem('token')
-  if (!rawUser) {
+  const token = localStorage.getItem('token')
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  if (!token || !user) {
     router.push('/login')
     return
   }
 
   try {
-    sessionUser = JSON.parse(rawUser)
-    if (!sessionUser || !sessionUser.username) {
+    if (!user || !user.username) {
       throw new Error()
     }
 
     // Populate form fields
-    /*
-    firstName.value = sessionUser.first_name || ''
-    lastName.value = sessionUser.last_name || ''
-    email.value = sessionUser.email || ''
-    username.value = sessionUser.username*/
+    firstName.value = user.first_name || ''
+    lastName.value = user.last_name || ''
+    email.value = user.email || ''
+    username.value = user.username
   } catch {
     router.push('/login')
   }
@@ -96,7 +96,8 @@ function saveChanges() {
 }
 
 function logout() {
-  localStorage.removeItem('sessionUser')
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
   router.push('/login')
 }
 </script>

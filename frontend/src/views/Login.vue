@@ -30,12 +30,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const username = ref('');
 const password = ref('');
 const router = useRouter();
+
+onMounted(() => {
+  const token = localStorage.getItem('token')
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  if (token && user) {
+    router.push('/profile')
+    return
+  }
+})
 
 async function login() {
   const res = await fetch('/api/auth/login', {
@@ -45,13 +55,12 @@ async function login() {
   });
 
   if (res.ok) {
-    router.push('/profile');
-
     const data = await res.json();
-    console.log(data);
 
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
+
+    router.push('/profile');
 
   } else {
     alert('Invalid credentials');
