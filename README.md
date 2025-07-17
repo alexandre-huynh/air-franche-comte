@@ -2,7 +2,6 @@
 
 Init with this
 ```bash
-git init -y
 npm install
 ```
 
