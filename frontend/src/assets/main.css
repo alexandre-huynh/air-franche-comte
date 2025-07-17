@@ -27,7 +27,14 @@ body {
   margin: auto;
 }
 
-*, *::before, *::after {
+nav, *::before, *::after {
   box-sizing: content-box !important;
 }
 
+.v-img__img--contain {
+  object-fit: fill !important;
+}
+
+.v-card .v-card-text {
+  height: 5em;
+}
