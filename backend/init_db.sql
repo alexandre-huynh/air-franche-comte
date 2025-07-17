@@ -92,7 +92,7 @@ INSERT INTO images (title, image_url) VALUES
 INSERT INTO aircraft (name, manufacturer, model, registration_number, year, image_id, description) VALUES
 ('ALTO NG', 'Direct Fly', 'ALTO NG', 'F-ALNG', 2021, 1, 'Light Czech aircraft, ideal for training and leisure.'),
 ('Archer DLX', 'Piper Aircraft', 'Archer DLX', 'F-ADLX', 2019, 2, 'American single-engine, very popular for training and private flights.'),
-('Avengers GTA5', 'Stark Industries', 'Avenger', 'F-AVG5', 2023, 3, 'Fictional aircraft inspired by the Marvel universe and GTA 5 game.'),
+('Avengers', 'Stark Industries', 'Avenger', 'F-AVG5', 2023, 3, 'Fictional aircraft inspired by the Marvel universe and GTA 5 game.'),
 ('CONDOG 42', 'Condog Aviation', 'Model 42', 'F-CD42', 2018, 4, 'Rugged utility aircraft for rough terrains.'),
 ('Elite Progressive-AeroDyne', 'Progressive Aerodyne', 'Elite', 'F-ELPD', 2020, 5, 'American seaplane for leisure and exploration.'),
 ('JETZERO', 'JetZero', 'Blended Wing', 'F-JZRO', 2025, 6, 'Blended wing prototype for green aviation.'),

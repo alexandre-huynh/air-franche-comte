@@ -17,6 +17,7 @@ const routes = [
   { path: '/gallery', name: 'gallery', component: Gallery },
   { path: '/reservation/:id', name: 'reservation', component: Reservations },
   { path: '/aircraft/:id', name: 'aircraft-details', component: AircraftDetails },
+  
 ]
 
 const router = createRouter({

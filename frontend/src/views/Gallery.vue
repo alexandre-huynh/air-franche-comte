@@ -21,7 +21,7 @@
             <v-btn color="primary">
               Reserve
             </v-btn>
-            <v-btn text>
+            <v-btn text @click="goToDetails(plane.id)">
               Info
             </v-btn>
           </v-card-actions>
@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 interface Plane {
@@ -45,6 +46,7 @@ interface Plane {
 }
 
 const planes = ref<Plane[]>([])
+const router = useRouter()
 
 onMounted(async () => {
   try {
@@ -54,4 +56,8 @@ onMounted(async () => {
     console.error('Failed to load planes:', err)
   }
 })
+
+const goToDetails = (id: number) => {
+  router.push({ name: 'aircraft-details', params: { id } })
+}
 </script>
