@@ -46,6 +46,13 @@ async function login() {
 
   if (res.ok) {
     router.push('/profile');
+
+    const data = await res.json();
+    console.log(data);
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
   } else {
     alert('Invalid credentials');
   }

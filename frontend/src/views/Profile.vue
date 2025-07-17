@@ -46,7 +46,7 @@ const username = ref('')
 let sessionUser: SessionUser | null = null
 
 onMounted(() => {
-  const rawUser = localStorage.getItem('sessionUser')
+  const rawUser = localStorage.getItem('token')
   if (!rawUser) {
     router.push('/login')
     return
@@ -59,10 +59,11 @@ onMounted(() => {
     }
 
     // Populate form fields
+    /*
     firstName.value = sessionUser.first_name || ''
     lastName.value = sessionUser.last_name || ''
     email.value = sessionUser.email || ''
-    username.value = sessionUser.username
+    username.value = sessionUser.username*/
   } catch {
     router.push('/login')
   }
