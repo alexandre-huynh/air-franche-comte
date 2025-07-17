@@ -1,14 +1,48 @@
 <template>
-  <div>
-    <h2>Register</h2>
-    <form @submit.prevent="register">
-      <input v-model="firstName" placeholder="First Name" />
-      <input v-model="lastName" placeholder="Last Name" />
-      <input v-model="email" placeholder="Email" />
-      <input v-model="username" placeholder="Username" />
-      <input v-model="password" type="password" placeholder="Password" />
-      <button type="submit">Register</button>
-    </form>
+  <div class="login-container">
+    <div class="login-card">
+      <h2>Create Account</h2>
+      <p class="subtitle">Welcome to <i>Air Franche Compté ! </i><br>Please fill in the form to register</p>
+
+      <form @submit.prevent="register">
+        <input
+          v-model="firstName"
+          placeholder="First Name"
+          type="text"
+          required
+        />
+        <input
+          v-model="lastName"
+          placeholder="Last Name"
+          type="text"
+          required
+        />
+        <input
+          v-model="email"
+          placeholder="Email"
+          type="email"
+          required
+        />
+        <input
+          v-model="username"
+          placeholder="Username"
+          type="text"
+          required
+        />
+        <input
+          v-model="password"
+          placeholder="Password"
+          type="password"
+          required
+        />
+        <button type="submit">Register</button>
+      </form>
+
+      <p class="register-link">
+        Already have an account?
+        <button @click="goToLogin">Login</button>
+      </p>
+    </div>
   </div>
 </template>
 
@@ -35,10 +69,108 @@ async function register() {
       password: password.value
     })
   })
+
   if (res.ok) {
+    alert('Registration successful! Please login.')
     router.push('/login')
   } else {
-    alert('Registration failed')
+    alert('Registration failed. Please try again.')
   }
 }
+
+function goToLogin() {
+  router.push('/login')
+}
 </script>
+
+<style scoped>
+.login-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #f4f6f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.login-card {
+  background: #ffffff;
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  min-height: 420px;
+  text-align: center;
+}
+
+.login-card h2 {
+  margin-bottom: 0.5rem;
+  color: #222;
+}
+
+.subtitle {
+  margin-bottom: 2rem;
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-card input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.login-card input:focus {
+  border-color: #2F7CFF;
+  outline: none;
+}
+
+.login-card button {
+  background: #2F7CFF;
+  color: #fff;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.login-card button:hover {
+  background: #255FCC;
+}
+
+.register-link {
+  margin-top: 1.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.register-link button {
+  background: none;
+  border: none;
+  color: #2F7CFF;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: underline;
+  margin-left: 0.3rem;
+}
+
+.register-link button:hover {
+  color: #255FCC;
+}
+</style>
