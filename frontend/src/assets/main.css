@@ -26,3 +26,8 @@ body {
   max-width: 1072px;
   margin: auto;
 }
+
+*, *::before, *::after {
+  box-sizing: content-box !important;
+}
+
