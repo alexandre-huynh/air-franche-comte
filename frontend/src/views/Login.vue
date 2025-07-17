@@ -2,7 +2,9 @@
   <div class="login-container">
     <div class="login-card">
       <h2>Welcome Back</h2>
-      <p class="subtitle">Please login to your <b>Air Franche Compté</b> account</p>
+      <p class="subtitle">
+        Please login to your <b>Air Franche Compté</b> account
+      </p>
 
       <form @submit.prevent="login">
         <input
@@ -18,6 +20,10 @@
           required
         />
         <button type="submit">Login</button>
+
+        <button type="button" class="register-btn" @click="goToRegister">
+          Register
+        </button>
       </form>
     </div>
   </div>
@@ -44,6 +50,10 @@ async function login() {
     alert('Invalid credentials');
   }
 }
+
+function goToRegister() {
+  router.push('/register');
+}
 </script>
 
 <style scoped>
@@ -51,6 +61,7 @@ async function login() {
   height: 100%;
   margin: 0;
   padding: 0;
+  background: #f4f6f9;
 }
 
 .login-container {
@@ -59,7 +70,6 @@ async function login() {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #f4f6f9; /* fond gris clair moderne */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -108,7 +118,8 @@ async function login() {
   outline: none;
 }
 
-.login-card button {
+/* bouton Login */
+.login-card button[type="submit"] {
   background: #2F7CFF;
   color: #fff;
   padding: 0.75rem;
@@ -119,7 +130,25 @@ async function login() {
   transition: background 0.3s ease;
 }
 
-.login-card button:hover {
+.login-card button[type="submit"]:hover {
   background: #255FCC;
+}
+
+/* bouton Register inversé */
+.register-btn {
+  background: #fff;
+  color: #2F7CFF;
+  border: 2px solid #2F7CFF;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.register-btn:hover {
+  background: #2F7CFF;
+  color: #fff;
 }
 </style>
