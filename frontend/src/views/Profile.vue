@@ -24,6 +24,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 // Types
 interface SessionUser {
@@ -32,6 +33,9 @@ interface SessionUser {
   last_name?: string
   email?: string
 }
+
+// Router
+const router = useRouter()
 
 // Reactive variables
 const firstName = ref('')
@@ -44,7 +48,7 @@ let sessionUser: SessionUser | null = null
 onMounted(() => {
   const rawUser = localStorage.getItem('sessionUser')
   if (!rawUser) {
-    window.location.href = 'login.html'
+    router.push('/login')
     return
   }
 
@@ -60,7 +64,7 @@ onMounted(() => {
     email.value = sessionUser.email || ''
     username.value = sessionUser.username
   } catch {
-    window.location.href = 'login.html'
+    router.push('/login')
   }
 })
 
@@ -92,6 +96,6 @@ function saveChanges() {
 
 function logout() {
   localStorage.removeItem('sessionUser')
-  window.location.href = 'login.html'
+  router.push('/login')
 }
 </script>
