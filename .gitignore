@@ -1,0 +1,61 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.pnpm-debug.log
+
+# Vue.js
+/dist/
+/*.local
+.env
+.env.*.local
+.vitepress/dist
+.nuxt
+output/
+coverage/
+
+# MySQL
+#*.sql
+*.sql.gz
+*.dump
+*.bak
+
+# Logs
+logs/
+*.log
+*.log.*
+debug.log
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Build artifacts
+build/
+temp/
+tmp/
+.cache/
+.terraform/
+.parcel-cache/
+
+# Test-related
+__tests__/
+coverage/
+jest-cache/
+jest.config.js
+test-results/
+
+# TypeScript
+*.tsbuildinfo
+
+# Docker
+docker-compose.override.yml
+.env.docker
