@@ -1,33 +1,97 @@
 <template>
-  <div v-if="user">
-    <h2>My Profile</h2>
-    <p>First Name: {{ user.firstName }}</p>
-    <p>Last Name: {{ user.lastName }}</p>
-    <p>Email: {{ user.email }}</p>
-    <p>Username: {{ user.username }}</p>
-    <button @click="logout">Logout</button>
-    <router-link to="/reservation">Make a Reservation</router-link>
-  </div>
+  <h2>My Profile</h2>
+  <form @submit.prevent="saveChanges">
+    <label>
+      First Name
+      <input type="text" v-model="firstName" />
+    </label>
+    <label>
+      Last Name
+      <input type="text" v-model="lastName" />
+    </label>
+    <label>
+      Email
+      <input type="email" v-model="email" />
+    </label>
+    <label>
+      Username
+      <input type="text" v-model="username" readonly />
+    </label>
+    <button type="submit">Save Changes</button>
+  </form>
+  <a href="#" @click.prevent="logout">Logout</a>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
 
-const router = useRouter()
-const user = ref<any>(null)
+// Types
+interface SessionUser {
+  username: string
+  first_name?: string
+  last_name?: string
+  email?: string
+}
 
-onMounted(async () => {
-  const res = await fetch('/api/profile', { credentials: 'include' })
-  if (res.ok) {
-    user.value = await res.json()
-  } else {
-    router.push('/login')
+// Reactive variables
+const firstName = ref('')
+const lastName = ref('')
+const email = ref('')
+const username = ref('')
+
+let sessionUser: SessionUser | null = null
+
+onMounted(() => {
+  const rawUser = localStorage.getItem('sessionUser')
+  if (!rawUser) {
+    window.location.href = 'login.html'
+    return
+  }
+
+  try {
+    sessionUser = JSON.parse(rawUser)
+    if (!sessionUser || !sessionUser.username) {
+      throw new Error()
+    }
+
+    // Populate form fields
+    firstName.value = sessionUser.first_name || ''
+    lastName.value = sessionUser.last_name || ''
+    email.value = sessionUser.email || ''
+    username.value = sessionUser.username
+  } catch {
+    window.location.href = 'login.html'
   }
 })
 
+function saveChanges() {
+  if (!sessionUser) return
+
+  sessionUser.first_name = firstName.value.trim()
+  sessionUser.last_name = lastName.value.trim()
+  sessionUser.email = email.value.trim()
+
+  localStorage.setItem('sessionUser', JSON.stringify(sessionUser))
+
+  const rawUsers = localStorage.getItem('users') || '[]'
+  let users: SessionUser[] = []
+
+  try {
+    users = JSON.parse(rawUsers)
+  } catch {
+    users = []
+  }
+
+  const index = users.findIndex((u) => u.username === sessionUser?.username)
+  if (index >= 0) {
+    users[index] = sessionUser
+    localStorage.setItem('users', JSON.stringify(users))
+    alert('Profile updated')
+  }
+}
+
 function logout() {
-  fetch('/api/logout', { method: 'POST', credentials: 'include' })
-  .finally(() => router.push('/login'))
+  localStorage.removeItem('sessionUser')
+  window.location.href = 'login.html'
 }
 </script>
