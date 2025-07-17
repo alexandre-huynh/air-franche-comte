@@ -1,6 +1,7 @@
 /*===========INIT===========*/
 const express = require('express');
 const helmet = require('helmet');
+const helmet = require('helmet');
 require('dotenv').config();
 
 const app = express();
@@ -16,7 +17,7 @@ app.use(helmet());
 
 /*===========API===========*/
 app.use('/api/auth', authRoutes);
-//app.use('/api/aircraft', require('./routes/aircraft'));
+app.use('/api/aircraft', require('./routes/aircraft'));
 //app.use('/api/profile', profileRoutes);
 
 /*===========START SERVER APP===========*/
