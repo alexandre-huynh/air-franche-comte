@@ -34,14 +34,14 @@ exports.loginUser = async (req, res) => {
     const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
 
     if (rows.length === 0) {
-        return res.status(401).json({ message: 'Utilisateur introuvable' });
+        return res.status(401).json({ message: 'User not found' });
     }
 
     const user = rows[0];
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Mot de passe invalide' });
+        return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, {
@@ -49,7 +49,7 @@ exports.loginUser = async (req, res) => {
     });
 
     res.json({
-        message: 'Connexion réussie',
+        message: 'Login success',
         token,
         user: {
         id: user.id,
