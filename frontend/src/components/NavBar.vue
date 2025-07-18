@@ -3,10 +3,15 @@
     <router-link to="/">Home</router-link>
     <router-link to="/about">About</router-link>
     <router-link to="/gallery">Gallery</router-link>
-    <router-link to="/profile" class="profile-container">
+    <router-link
+      to="/profile"
+      class="profile-container"
+      :class="{ 'with-username': sessionUser }"
+    >
       <span class="username" v-if="sessionUser">{{ sessionUser.username }}</span>
       <img src="../assets/user.png" alt="user" class="profile" />
     </router-link>
+
 
   </nav>
 </template>
@@ -74,9 +79,14 @@ nav a.router-link-exact-active {
   align-items: center;
   gap: 0.5em;
   margin-left: auto;
-  padding: 0 0 0 0.5em;
   border-radius: 999px;
+  padding: 0;
 }
+
+.profile-container.with-username {
+  padding-left: 0.5em;
+}
+
 
 .username {
   color: white;
