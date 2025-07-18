@@ -6,13 +6,13 @@
 
       <form @submit.prevent="saveChanges">
         <label for="firstName">First Name</label>
-        <input type="text" v-model="firstName" placeholder="First Name" />
+        <input type="text" v-model="_firstName" readonly placeholder="First Name" />
         <label for="lastName">Last Name</label>
-        <input type="text" v-model="lastName" placeholder="Last Name" />
+        <input type="text" v-model="_lastName" readonly placeholder="Last Name" />
         <label for="email">Email</label>
-        <input type="email" v-model="email" placeholder="Email" />
+        <input type="email" v-model="_email" placeholder="Email" />
         <label for="username">Username</label>
-        <input type="text" v-model="username" readonly placeholder="Username" />
+        <input type="text" v-model="_username" placeholder="Username" />
         <button type="submit">Save Changes</button>
       </form>
 
@@ -20,7 +20,7 @@
 
       <div class="logout-link">
         <span>Want to log out?</span>
-        <button @click="logout">Log Out</button>
+        <button @click="handleLogout">Log Out</button>
       </div>
     </div>
   </div>
@@ -29,75 +29,69 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import {
+  loadUserFromLocalStorage,
+  logout,
+  token,
+  sessionUser,
+  saveUserToLocalStorage
+} from '@/stores/auth'
 
-interface SessionUser {
-  username: string
-  first_name?: string
-  last_name?: string
-  email?: string
-}
 
 const router = useRouter()
 
-const firstName = ref('')
-const lastName = ref('')
-const email = ref('')
-const username = ref('')
-
-const sessionUser: SessionUser | null = null
+const _firstName = ref('')
+const _lastName = ref('')
+const _email = ref('')
+const _username = ref('')
 
 onMounted(() => {
-  const token = localStorage.getItem('token')
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-  if (!token || !user) {
+  loadUserFromLocalStorage();
+
+  if (!token.value || !sessionUser.value) {
     router.push('/login')
     return
   }
 
-  try {
-    if (!user || !user.username) throw new Error()
-
-    firstName.value = user.first_name || ''
-    lastName.value = user.last_name || ''
-    email.value = user.email || ''
-    username.value = user.username
-  } catch {
-    router.push('/login')
-  }
+  _firstName.value = sessionUser.value.first_name || ''
+  _lastName.value = sessionUser.value.last_name || ''
+  _email.value = sessionUser.value.email || ''
+  _username.value = sessionUser.value.username || ''
 })
 
-function saveChanges() {
-  if (!sessionUser) return
+interface UpdateUser {
+  username: string
+  email: string
+}
 
-  sessionUser.first_name = firstName.value.trim()
-  sessionUser.last_name = lastName.value.trim()
-  sessionUser.email = email.value.trim()
+async function saveChanges() {
+  const updateUser: UpdateUser = {
+    username: _username.value.trim(),
+    email: _email.value.trim()
+  };
 
-  localStorage.setItem('sessionUser', JSON.stringify(sessionUser))
+  const res = await fetch('/api/profile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'authorization': `Bearer ${token.value}` },
+    body: JSON.stringify(updateUser)
+  });
 
-  const rawUsers = localStorage.getItem('users') || '[]'
-  let users: SessionUser[] = []
-
-  try {
-    users = JSON.parse(rawUsers)
-  } catch {
-    users = []
-  }
-
-  const index = users.findIndex((u) => u.username === sessionUser?.username)
-  if (index >= 0) {
-    users[index] = sessionUser
-    localStorage.setItem('users', JSON.stringify(users))
-    alert('Profile updated')
+  if (res.ok && sessionUser.value) {
+    sessionUser.value.email = updateUser.email;
+    sessionUser.value.username = updateUser.username;
+    saveUserToLocalStorage()
+    await router.push('/profile')
+  } else {
+    alert('Failed to update profile. Please try again.');
   }
 }
 
-function logout() {
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
+function handleLogout() {
+  logout()
   router.push('/login')
 }
+
 </script>
 
 <style scoped>
@@ -156,6 +150,11 @@ function logout() {
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s;
+}
+
+.profile-card input[readonly] {
+  background: #f9f9f9;
+  cursor: not-allowed;
 }
 
 .profile-card input:focus {

@@ -19,6 +19,8 @@ app.use(helmet());
 app.use('/api/auth', authRoutes);
 app.use('/api/aircraft', require('./routes/aircraft'));
 app.use('/api/reservations', require('./routes/reservations'));
+app.use('/api/profile', require('./routes/profile'));
+
 //app.use('/api/profile', profileRoutes);
 
 /*===========START SERVER APP===========*/
