@@ -1,15 +1,24 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
   <nav>
     <router-link to="/">Home</router-link>
     <router-link to="/about">About</router-link>
     <router-link to="/gallery">Gallery</router-link>
-    <router-link to="/profile"><img src="../assets/user.png" alt="user" class="profile"></router-link>
+    <router-link to="/profile" class="profile-container">
+      <span class="username" v-if="sessionUser">{{ sessionUser.username }}</span>
+      <img src="../assets/user.png" alt="user" class="profile" />
+    </router-link>
+
   </nav>
 </template>
+
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { loadUserFromLocalStorage, sessionUser } from '@/stores/auth'
+
+onMounted(() => {
+  loadUserFromLocalStorage()
+})
+</script>
 
 
 <style scoped>
@@ -60,10 +69,20 @@ nav a.router-link-exact-active {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-nav a:last-child {
+.profile-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
   margin-left: auto;
-  padding: 0;
-  border-radius: 50%;
+  padding: 0 0 0 0.5em;
+  border-radius: 999px;
+}
+
+.username {
+  color: white;
+  font-weight: bold;
+  font-size: 1em;
+  text-shadow: 0 0 3px #0ff;
 }
 
 .profile {

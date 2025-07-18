@@ -3,20 +3,20 @@
     <div class="login-card">
       <h2>Welcome Back</h2>
       <p class="subtitle">
-        Please login to your <b>Air Franche Compté</b> account
+        Please login to your <b>Air Franche Comté</b> account
       </p>
 
       <form @submit.prevent="login">
         <label for="username">Username</label>
         <input
-          v-model="username"
+          v-model="_username"
           placeholder="Username"
           type="text"
           required
         />
         <label for="password">Password</label>
         <input
-          v-model="password"
+          v-model="_password"
           placeholder="Password"
           type="password"
           required
@@ -36,16 +36,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { saveUserToLocalStorage, token, sessionUser } from '@/stores/auth.ts'
 
-const username = ref('');
-const password = ref('');
+const _username = ref('');
+const _password = ref('');
 const router = useRouter();
 
 onMounted(() => {
-  const token = localStorage.getItem('token')
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-  if (token && user) {
+  if (token.value && sessionUser.value) {
     router.push('/profile')
     return
   }
@@ -55,14 +53,16 @@ async function login() {
   const res = await fetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: username.value, password: password.value })
+    body: JSON.stringify({ username: _username.value, password: _password.value })
   });
 
   if (res.ok) {
     const data = await res.json();
 
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    token.value = data.token;
+    sessionUser.value = data.user;
+
+    saveUserToLocalStorage();
 
     await router.push('/profile');
 
