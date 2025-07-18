@@ -4,6 +4,16 @@
       <h2>My Profile</h2>
       <p class="subtitle">Edit your personal information</p>
 
+      <!-- Section photo de profil -->
+      <div class="profile-photo-section">
+        <img
+          :src="sessionUser?.avatar_url || profilePhotoPreview || defaultPhoto"
+          alt="Profile Photo"
+          class="profile-photo"
+        />
+        <input type="file" @change="onPhotoSelected" accept="image/*" />
+      </div>
+
       <form @submit.prevent="saveChanges">
         <label for="firstName">First Name</label>
         <input type="text" v-model="_firstName" readonly placeholder="First Name" />
@@ -40,9 +50,9 @@
             <span><strong>Date:</strong> {{ formatDate(reservation.reservation_date) }}</span>
             <span><strong>Aircraft ID:</strong> {{ reservation.aircraft_id }}</span>
             <span class="status-line">
-      <strong>Status:</strong>
-      <span class="status-badge" :class="reservation.status">{{ reservation.status }}</span>
-    </span>
+              <strong>Status:</strong>
+              <span class="status-badge" :class="reservation.status">{{ reservation.status }}</span>
+            </span>
           </li>
         </ul>
       </div>
@@ -74,6 +84,9 @@ import {
 
 import ReservationPopup from '@/components/ReservationPopup.vue'
 
+// Import de l'image par défaut
+import defaultPhoto from '../assets/user.png'
+
 const router = useRouter()
 
 const _firstName = ref('')
@@ -82,6 +95,10 @@ const _email = ref('')
 const _username = ref('')
 const reservations = ref<any[]>([])
 const selectedReservation = ref<any | null>(null)
+
+// Pour gérer la photo de profil
+const profilePhotoFile = ref<File | null>(null)
+const profilePhotoPreview = ref<string>('')
 
 onMounted(async () => {
   loadUserFromLocalStorage()
@@ -114,29 +131,43 @@ onMounted(async () => {
   }
 })
 
-interface UpdateUser {
-  username: string
-  email: string
+function onPhotoSelected(event: Event) {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    profilePhotoFile.value = target.files[0]
+
+    // Aperçu immédiat
+    const reader = new FileReader()
+    reader.onload = e => {
+      profilePhotoPreview.value = e.target?.result as string
+    }
+    reader.readAsDataURL(profilePhotoFile.value)
+  }
 }
 
 async function saveChanges() {
-  const updateUser: UpdateUser = {
-    username: _username.value.trim(),
-    email: _email.value.trim(),
+  const formData = new FormData()
+  formData.append('username', _username.value.trim())
+  formData.append('email', _email.value.trim())
+
+  if (profilePhotoFile.value) {
+    formData.append('profile_photo', profilePhotoFile.value)
   }
 
   const res = await fetch('/api/profile', {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json',
       authorization: `Bearer ${token.value}`,
+      // Pas de Content-Type, multipart géré automatiquement
     },
-    body: JSON.stringify(updateUser),
+    body: formData,
   })
 
   if (res.ok && sessionUser.value) {
-    sessionUser.value.email = updateUser.email
-    sessionUser.value.username = updateUser.username
+    const updatedUser = await res.json()
+    sessionUser.value.email = updatedUser.user.email
+    sessionUser.value.username = updatedUser.user.username
+    sessionUser.value.avatar_url = updatedUser.user.avatar_url
     saveUserToLocalStorage()
     await router.push('/profile')
   } else {
@@ -167,7 +198,6 @@ function formatDate(dateString: string) {
 </script>
 
 <style scoped>
-/* (Identique à ton style précédent, non modifié) */
 .profile-container {
   display: flex;
   justify-content: center;
@@ -199,6 +229,22 @@ function formatDate(dateString: string) {
   margin-bottom: 1.5rem;
   color: #777;
   font-size: 0.9rem;
+}
+
+.profile-photo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.profile-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+  border: 2px solid #2f7cff;
 }
 
 .profile-card form {

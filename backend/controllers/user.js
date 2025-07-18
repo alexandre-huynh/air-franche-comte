@@ -1,49 +1,69 @@
-const pool = require('../db');
-
-// XSS prevention
-const sanitizeHtml = require('sanitize-html');
-const validator = require('validator');
+const pool = require('../db')
+const validator = require('validator')
+const path = require('path')
 
 exports.updateUser = async (req, res) => {
-    // Case body null
-    if (req.body == undefined) {
-        console.error('Bad request : No request body');
-        res.status(400).json(
-            { message: 'Bad Request : No request body' }
-        );
+    if (!req.body) {
+        return res.status(400).json({ message: 'Bad Request: No request body' })
     }
 
-    const { email, username } = req.body;
+    let { email, username } = req.body
 
-    // Case username or password null
-    if (username == null || username == "" || email == null || email == ""){
-        console.error('Bad request : Missing username or email');
-        res.status(400).json(
-            { message: 'Bad Request : Missing username or email' }
-        );
+    // username et email peuvent venir en multipart/form-data en texte (req.body)
+    if (!username || !email) {
+        return res.status(400).json({ message: 'Bad Request: Missing username or email' })
     }
 
-    // Verify if there's no forbidden characters in username to prevent XSS
+    // Assainissement
+    username = validator.escape(username.trim())
+    email = validator.normalizeEmail(email.trim())
+
     if (!validator.isAlphanumeric(username)) {
-        return res.status(400).json({ message: 'Forbidden chars in username' });
+        return res.status(400).json({ message: 'Forbidden chars in username' })
     }
 
     try {
-        const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
-
-        if (rows.length > 0) {
-            return res.status(409).json({ message: 'Username already exists' });
+        // Vérifier si username est déjà utilisé par un autre user
+        const [existingUsers] = await pool.query(
+            'SELECT id FROM users WHERE username = ? AND id != ?',
+            [username, req.user.id]
+        )
+        if (existingUsers.length > 0) {
+            return res.status(409).json({ message: 'Username already exists' })
         }
 
-        const [result] = await pool.query('UPDATE users SET email = ?, username = ? WHERE id = ?', [email, username, req.user.id]);
+        // Préparer la requête UPDATE avec avatar_url si fichier uploadé
+        let avatarUrl = null
+        if (req.file) {
+            avatarUrl = `/uploads/${req.file.filename}`
+        }
 
-        res.status(201).json({ message: 'User registered successfully', userId: result.insertId });
+        if (avatarUrl) {
+            await pool.query(
+                'UPDATE users SET email = ?, username = ?, avatar_url = ? WHERE id = ?',
+                [email, username, avatarUrl, req.user.id]
+            )
+        } else {
+            await pool.query(
+                'UPDATE users SET email = ?, username = ? WHERE id = ?',
+                [email, username, req.user.id]
+            )
+        }
+
+        // Optionnel: récupérer le user à jour
+        const [rows] = await pool.query('SELECT id, first_name, last_name, username, email, avatar_url FROM users WHERE id = ?', [req.user.id])
+        const user = rows[0]
+
+        user.avatar_url = "http://localhost:3000" + user.avatar_url;
+
+        res.status(200).json({ message: 'User updated successfully', user })
 
     } catch (error) {
-        console.error('Error during registration:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error updating user:', error)
+        res.status(500).json({ message: 'Server error' })
     }
 }
+
 
 exports.getUserReservations = async (req, res) => {
     try {

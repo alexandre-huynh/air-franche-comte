@@ -9,7 +9,11 @@
       :class="{ 'with-username': sessionUser }"
     >
       <span class="username" v-if="sessionUser">{{ sessionUser.username }}</span>
-      <img src="../assets/user.png" alt="user" class="profile" />
+      <img
+        :src='sessionUser?.avatar_url || "/src/assets/user.png"'
+        alt="Profile Photo"
+        class="profile"
+      />
     </router-link>
 
 
