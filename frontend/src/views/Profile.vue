@@ -16,13 +16,48 @@
         <button type="submit">Save Changes</button>
       </form>
 
-      <hr>
+      <hr />
 
       <div class="logout-link">
         <span>Want to log out?</span>
         <button @click="handleLogout">Log Out</button>
       </div>
     </div>
+
+    <!-- Reservation Section -->
+    <div class="reservations-card">
+      <h2>My Reservations</h2>
+      <p class="subtitle">List of your booked aircraft</p>
+
+      <div v-if="reservations.length > 0">
+        <ul class="reservation-list">
+          <li
+            v-for="reservation in reservations"
+            :key="reservation.id"
+            :class="['reservation-item', reservation.status]"
+            @click="selectedReservation = reservation"
+          >
+            <span><strong>Date:</strong> {{ formatDate(reservation.reservation_date) }}</span>
+            <span><strong>Aircraft ID:</strong> {{ reservation.aircraft_id }}</span>
+            <span class="status-line">
+      <strong>Status:</strong>
+      <span class="status-badge" :class="reservation.status">{{ reservation.status }}</span>
+    </span>
+          </li>
+        </ul>
+      </div>
+      <div v-else>
+        <p class="no-reservations">You have no reservations.</p>
+      </div>
+    </div>
+
+    <!-- Reservation Popup -->
+    <ReservationPopup
+      v-if="selectedReservation"
+      :reservation="selectedReservation"
+      @close="selectedReservation = null"
+      @updated="onStatusUpdated"
+    />
   </div>
 </template>
 
@@ -34,9 +69,10 @@ import {
   logout,
   token,
   sessionUser,
-  saveUserToLocalStorage
+  saveUserToLocalStorage,
 } from '@/stores/auth'
 
+import ReservationPopup from '@/components/ReservationPopup.vue'
 
 const router = useRouter()
 
@@ -44,10 +80,11 @@ const _firstName = ref('')
 const _lastName = ref('')
 const _email = ref('')
 const _username = ref('')
+const reservations = ref<any[]>([])
+const selectedReservation = ref<any | null>(null)
 
-onMounted(() => {
-
-  loadUserFromLocalStorage();
+onMounted(async () => {
+  loadUserFromLocalStorage()
 
   if (!token.value || !sessionUser.value) {
     router.push('/login')
@@ -58,6 +95,23 @@ onMounted(() => {
   _lastName.value = sessionUser.value.last_name || ''
   _email.value = sessionUser.value.email || ''
   _username.value = sessionUser.value.username || ''
+
+  try {
+    const res = await fetch('/api/profile/reservations', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    })
+
+    if (res.ok) {
+      reservations.value = await res.json()
+    } else {
+      reservations.value = []
+    }
+  } catch (error) {
+    console.error('Failed to load reservations:', error)
+  }
 })
 
 interface UpdateUser {
@@ -68,22 +122,25 @@ interface UpdateUser {
 async function saveChanges() {
   const updateUser: UpdateUser = {
     username: _username.value.trim(),
-    email: _email.value.trim()
-  };
+    email: _email.value.trim(),
+  }
 
   const res = await fetch('/api/profile', {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'authorization': `Bearer ${token.value}` },
-    body: JSON.stringify(updateUser)
-  });
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: `Bearer ${token.value}`,
+    },
+    body: JSON.stringify(updateUser),
+  })
 
   if (res.ok && sessionUser.value) {
-    sessionUser.value.email = updateUser.email;
-    sessionUser.value.username = updateUser.username;
+    sessionUser.value.email = updateUser.email
+    sessionUser.value.username = updateUser.username
     saveUserToLocalStorage()
     await router.push('/profile')
   } else {
-    alert('Failed to update profile. Please try again.');
+    alert('Failed to update profile. Please try again.')
   }
 }
 
@@ -92,41 +149,54 @@ function handleLogout() {
   router.push('/login')
 }
 
+function onStatusUpdated(newStatus: string) {
+  if (selectedReservation.value) {
+    selectedReservation.value.status = newStatus
+  }
+}
+
+function formatDate(dateString: string) {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
 </script>
 
 <style scoped>
+/* (Identique à ton style précédent, non modifié) */
 .profile-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #f4f6f9;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding: 2rem;
+  gap: 2rem;
+  background: #f4f6f9;
   font-family: Arial, sans-serif;
-  padding: 1rem;
   box-sizing: border-box;
 }
 
-.profile-card {
+.profile-card,
+.reservations-card {
   background: #ffffff;
-  padding: 3rem;
+  padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   width: 400px;
   min-height: 420px;
-  text-align: center;
 }
 
-.profile-card h2 {
+.profile-card h2,
+.reservations-card h2 {
   margin-bottom: 0.5rem;
   color: #222;
 }
 
 .subtitle {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   color: #777;
   font-size: 0.9rem;
 }
@@ -158,12 +228,12 @@ function handleLogout() {
 }
 
 .profile-card input:focus {
-  border-color: #2F7CFF;
+  border-color: #2f7cff;
   outline: none;
 }
 
 .profile-card button {
-  background: #2F7CFF;
+  background: #2f7cff;
   color: #fff;
   padding: 0.75rem;
   border: none;
@@ -174,7 +244,7 @@ function handleLogout() {
 }
 
 .profile-card button:hover {
-  background: #255FCC;
+  background: #255fcc;
 }
 
 .logout-link {
@@ -185,7 +255,7 @@ function handleLogout() {
 .logout-link button {
   background: none !important;
   border: none;
-  color: #2F7CFF;
+  color: #2f7cff;
   cursor: pointer;
   font-weight: bold;
   text-decoration: underline;
@@ -193,12 +263,102 @@ function handleLogout() {
 }
 
 .logout-link button:hover {
-  color: #255FCC;
+  color: #255fcc;
 }
 
 hr {
   margin: 1.5rem 0 0.5rem;
   border: none;
   border-top: 1px solid #ddd;
+}
+
+.reservations-card {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.reservations-card h2 {
+  color: #222;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.reservation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.reservation-list li {
+  background: #f0f4ff;
+  border-left: 4px solid #2f7cff;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: background 0.3s;
+  cursor: pointer;
+}
+
+.reservation-list li:hover {
+  background: #e7efff;
+}
+
+.reservation-list strong {
+  color: #2f7cff;
+  font-weight: 600;
+}
+
+.reservation-list li span {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.95rem;
+}
+
+.no-reservations {
+  text-align: center;
+  font-style: italic;
+  color: #999;
+  margin-top: 1rem;
+}
+
+.status-badge {
+  width: 100%;
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.status-line {
+  width: 100%;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pending {
+  color: #856404;
+  background-color: #fff3cd;
+}
+
+.confirmed {
+  color: #155724;
+  background-color: #d4edda;
+}
+
+.cancelled {
+  color: #721c24;
+  background-color: #f8d7da;
 }
 </style>
