@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-card">
       <h2>Create Account</h2>
-      <p class="subtitle">Welcome to <i>Air Franche Compté ! </i><br>Please fill in the form to register</p>
+      <p class="subtitle">Welcome to <i>Air Franche Comté ! </i><br>Please fill in the form to register</p>
 
       <form @submit.prevent="register">
         <input
@@ -97,6 +97,18 @@ function goToLogin() {
   font-family: Arial, sans-serif;
   padding: 1rem;
   box-sizing: border-box;
+}
+
+.login-container::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("../assets/img/Scylax_GmbH.jpg"); 
+  background-position: center;
+  background-size: cover; 
+  background-repeat: no-repeat; 
+  filter: blur(2.5px);
+  z-index: -1;
 }
 
 .login-card {

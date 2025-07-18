@@ -18,5 +18,6 @@ footer {
   padding: 1.5em 0;
   width: 100%;
   box-shadow: 0 -4px 10px rgba(0, 255, 255, 0.3);
+  z-index: 1000;
 }
 </style>

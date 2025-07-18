@@ -3,7 +3,7 @@
     <div class="login-card">
       <h2>Welcome Back</h2>
       <p class="subtitle">
-        Please login to your <b>Air Franche Compté</b> account
+        Please login to your <b>Air Franche Comté</b> account
       </p>
 
       <form @submit.prevent="login">
@@ -94,6 +94,18 @@ function goToRegister() {
   box-sizing: border-box;
 }
 
+.login-container::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("../assets/img/X-Air_LS.jpg"); 
+  background-position: center;
+  background-size: cover; 
+  background-repeat: no-repeat; 
+  filter: blur(3px);
+  z-index: -1;
+}
+
 .login-card {
   background: #ffffff;
   padding: 3rem;
@@ -102,6 +114,7 @@ function goToRegister() {
   width: 400px;
   min-height: 380px;
   text-align: center;
+  z-index: 1000;
 }
 
 .login-card h2 {

@@ -20,7 +20,6 @@ nav {
   justify-content: center;
   gap: 3em;
   box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3);
-  border-bottom: 2px solid #0ff;
   position: sticky;
   top: 0;
   z-index: 999;
