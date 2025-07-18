@@ -7,12 +7,14 @@
       </p>
 
       <form @submit.prevent="login">
+        <label for="username">Username</label>
         <input
           v-model="username"
           placeholder="Username"
           type="text"
           required
         />
+        <label for="password">Password</label>
         <input
           v-model="password"
           placeholder="Password"
@@ -20,6 +22,8 @@
           required
         />
         <button type="submit">Login</button>
+
+        <hr>
 
         <button type="button" class="register-btn" @click="goToRegister">
           Register
@@ -60,7 +64,7 @@ async function login() {
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
 
-    router.push('/profile');
+    await router.push('/profile');
 
   } else {
     alert('Invalid credentials');
@@ -131,10 +135,17 @@ function goToRegister() {
 .login-card form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+}
+
+.login-card label {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.25rem;
+  text-align: left;
 }
 
 .login-card input {
+  margin-bottom: 1rem;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -168,7 +179,6 @@ function goToRegister() {
   background: #fff;
   color: #2F7CFF;
   border: 2px solid #2F7CFF;
-  margin-top: 0.5rem;
   padding: 0.75rem;
   border-radius: 8px;
   font-size: 1rem;
@@ -179,5 +189,11 @@ function goToRegister() {
 .register-btn:hover {
   background: #2F7CFF;
   color: #fff;
+}
+
+hr {
+  margin: 0.5rem 0;
+  border: none;
+  border-top: 1px solid #ddd;
 }
 </style>

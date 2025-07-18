@@ -11,6 +11,7 @@ router.get('/', async (req, res) => {
         a.name,
         a.manufacturer,
         a.model,
+        a.year,
         a.description,
         i.image_url
       FROM aircraft a
@@ -22,6 +23,34 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch aircraft data' });
+  }
+});
+
+// GET /api/aircraft/:id
+router.get('/:id', async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        a.id,
+        a.name,
+        a.manufacturer,
+        a.model,
+        a.year,
+        a.description,
+        i.image_url
+      FROM aircraft a
+      LEFT JOIN images i ON a.image_id = i.id
+      WHERE a.id = ?
+    `, [req.params.id])
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Aircraft not found' })
+    }
+
+    res.json(rows[0])
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch aircraft data' })
   }
 });
 

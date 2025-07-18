@@ -65,3 +65,48 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur' });
     }
 };
+
+
+exports.registerUser = async (req, res) => {
+    // Case body null
+    if (req.body == undefined) {
+        console.error('Bad request : No request body');
+        res.status(400).json(
+            { message: 'Bad Request : No request body' }
+        );
+    }
+
+    const { firstName, lastName, email, username, password } = req.body;
+
+    // Case username or password null
+    if (username == null || username == "" || password == null || password == ""){
+        console.error('Bad request : Missing username or password');
+        res.status(400).json(
+            { message: 'Bad Request : Missing username or password' }
+        );
+    }
+
+    // Verify if there's no forbidden characters in username to prevent XSS
+    if (!validator.isAlphanumeric(username)) {
+        return res.status(400).json({ message: 'Forbidden chars in username' });
+    }
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
+
+        if (rows.length > 0) {
+            return res.status(409).json({ message: 'Username already exists' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const [result] = await pool.query('INSERT INTO users (first_name, last_name, email, username, password_hash) VALUES (?, ?, ?, ?, ?)',
+            [firstName, lastName, email, username, hashedPassword]);
+
+        res.status(201).json({ message: 'User registered successfully', userId: result.insertId });
+
+    } catch (error) {
+        console.error('Error during registration:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}

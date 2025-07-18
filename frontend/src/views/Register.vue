@@ -5,30 +5,35 @@
       <p class="subtitle">Welcome to <i>Air Franche Comté ! </i><br>Please fill in the form to register</p>
 
       <form @submit.prevent="register">
+        <label for="firstName">First Name</label>
         <input
           v-model="firstName"
           placeholder="First Name"
           type="text"
           required
         />
+        <label for="lastName">Last Name</label>
         <input
           v-model="lastName"
           placeholder="Last Name"
           type="text"
           required
         />
+        <label for="email">Email</label>
         <input
           v-model="email"
           placeholder="Email"
           type="email"
           required
         />
+        <label for="username">Username</label>
         <input
           v-model="username"
           placeholder="Username"
           type="text"
           required
         />
+        <label for="password">Password</label>
         <input
           v-model="password"
           placeholder="Password"
@@ -37,6 +42,8 @@
         />
         <button type="submit">Register</button>
       </form>
+
+      <hr>
 
       <p class="register-link">
         Already have an account?
@@ -58,7 +65,7 @@ const password = ref('')
 const router = useRouter()
 
 async function register() {
-  const res = await fetch('/api/register', {
+  const res = await fetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -72,7 +79,7 @@ async function register() {
 
   if (res.ok) {
     alert('Registration successful! Please login.')
-    router.push('/login')
+    await router.push('/login')
   } else {
     alert('Registration failed. Please try again.')
   }
@@ -135,10 +142,17 @@ function goToLogin() {
 .login-card form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+}
+
+.login-card label {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.25rem;
+  text-align: left;
 }
 
 .login-card input {
+  margin-bottom: 1rem;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -167,22 +181,26 @@ function goToLogin() {
 }
 
 .register-link {
-  margin-top: 1.5rem;
   color: #666;
   font-size: 0.9rem;
 }
 
 .register-link button {
-  background: none;
+  background: none !important;
   border: none;
   color: #2F7CFF;
   cursor: pointer;
   font-weight: bold;
   text-decoration: underline;
-  margin-left: 0.3rem;
 }
 
 .register-link button:hover {
   color: #255FCC;
+}
+
+hr {
+  margin: 1.5rem 0 0.5rem;
+  border: none;
+  border-top: 1px solid #ddd;
 }
 </style>
