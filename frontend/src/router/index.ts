@@ -5,8 +5,6 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Profile from '../views/Profile.vue'
 import Gallery from '../views/Gallery.vue'
-import Reservations from '../views/Reservations.vue'
-import AircraftDetails from '../views/AircraftDetails.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -15,9 +13,6 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/gallery', name: 'gallery', component: Gallery },
-  { path: '/reservation/:id', name: 'reservation', component: Reservations },
-  { path: '/aircraft/:id', name: 'aircraft-details', component: AircraftDetails },
-  
 ]
 
 const router = createRouter({

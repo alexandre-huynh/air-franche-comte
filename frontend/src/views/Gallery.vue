@@ -9,31 +9,27 @@
         md="4"
       >
         <v-card>
-          <v-img :src="plane.image_url" height="200px" class="fill"/>
+          <v-img :src="plane.image_url" height="200px" class="fill" />
           <v-card-title>{{ plane.name }}</v-card-title>
-          <v-card-subtitle>
-            {{ plane.manufacturer }} {{ plane.model }}
-          </v-card-subtitle>
+          <v-card-subtitle>{{ plane.description }}</v-card-subtitle>
           <v-card-text>
-            {{ plane.description }}
+            <p><strong>Located at:</strong> {{ plane.airfield_name }}</p>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary">Reserve</v-btn>
-            <v-btn text @click="openModal(plane)">Info</v-btn>
+            <v-btn color="primary" @click="openReserveModal(plane)">Reserve</v-btn>
+            <v-btn text @click="openInfoModal(plane)">Info</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
 
-    <!-- MODAL DIALOG -->
-    <v-dialog v-model="isDialogOpen" max-width="600px">
+    <!-- INFO MODAL -->
+    <v-dialog v-model="isInfoDialogOpen" max-width="600px">
       <v-card v-if="selectedPlane">
         <v-card-title class="d-flex align-center">
-          <span>{{ selectedPlane.model }}</span>
+          {{ selectedPlane.name }}
           <v-spacer />
-          <v-btn icon @click="isDialogOpen = false" class="close-btn" title="Close">
-            ×
-          </v-btn>
+          <v-btn icon @click="isInfoDialogOpen = false" class="close-btn" title="Close">×</v-btn>
         </v-card-title>
         <v-card-subtitle>
           Manufacturer: {{ selectedPlane.manufacturer }}
@@ -41,10 +37,44 @@
         <v-img :src="selectedPlane.image_url" height="300px" />
         <v-card-text>
           <p><strong>Year:</strong> {{ selectedPlane.year || 'N/A' }}</p>
-          <p>{{ selectedPlane.description }}</p>
+          <p><strong>Capacity:</strong> {{ selectedPlane.capacity }} passengers</p>
+          <p><strong>Range:</strong> {{ selectedPlane.range_km }} km</p>
+          <p><strong>Max speed:</strong> {{ selectedPlane.max_speed_kmh }} km/h</p>
+          <p><strong>Wi-Fi:</strong> {{ selectedPlane.has_wifi ? 'Yes' : 'No' }}</p>
+          <p><strong>Luggage capacity:</strong> {{ selectedPlane.luggage_capacity_kg }} kg</p>
+          <p><strong>Description:</strong> {{ selectedPlane.description }}</p>
+          <p><strong>Located at:</strong> {{ selectedPlane.airfield_name }}</p>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <!-- RESERVE MODAL -->
+    <v-dialog v-model="isReserveDialogOpen" max-width="600px">
+      <v-card v-if="selectedPlane">
+        <v-card-title class="d-flex align-center">
+          Reserve: {{ selectedPlane.name }}
+          <v-spacer />
+          <v-btn icon @click="isReserveDialogOpen = false" class="close-btn" title="Close">×</v-btn>
+        </v-card-title>
+        <v-card-subtitle>Select your date below</v-card-subtitle>
+        <v-card-text>
+          <p v-if="user">
+            <strong>You are logged in as:</strong> {{ user.first_name }} {{ user.last_name }}
+          </p>
+
+          <p><strong>Base price:</strong> ${{ selectedPlane.price }}</p>
+          <p><strong>With tax:</strong> ${{ selectedPlane.price_with_tax }}</p>
+          <p><strong>Final price with mandatory tips:</strong> ${{ selectedPlane.tips_price }}</p>
+
+          <v-date-picker
+            v-model="reservationDate"
+            :min="today"
+            :allowed-dates="isDateAllowed"
+          />
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary">Reserve</v-btn>
+          <v-btn color="primary" @click="confirmReservation">Confirm</v-btn>
+          <v-btn text @click="isReserveDialogOpen = false">Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -53,7 +83,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
+
+const router = useRouter()
 
 interface Plane {
   id: number
@@ -62,12 +95,29 @@ interface Plane {
   model: string
   description: string
   image_url: string
+  airfield_name: string
+  airfield_id: number
   year?: number
+  price: number
+  price_with_tax: number
+  tips_price: number
+  capacity: number
+  range_km: number
+  max_speed_kmh: number
+  has_wifi: boolean
+  luggage_capacity_kg: number
 }
 
 const planes = ref<Plane[]>([])
 const selectedPlane = ref<Plane | null>(null)
-const isDialogOpen = ref(false)
+
+const isInfoDialogOpen = ref(false)
+const isReserveDialogOpen = ref(false)
+const reservationDate = ref('')
+const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+
+const user = ref<{ id: number, first_name: string, last_name: string } | null>(null)
+const reservedDates = ref<string[]>([])
 
 onMounted(async () => {
   try {
@@ -76,17 +126,83 @@ onMounted(async () => {
   } catch (err) {
     console.error('Failed to load planes:', err)
   }
+
+  const storedUser = localStorage.getItem("user")
+  if (storedUser) {
+    user.value = JSON.parse(storedUser)
+  }
 })
 
-const openModal = (plane: Plane) => {
+const openInfoModal = (plane: Plane) => {
   selectedPlane.value = plane
-  isDialogOpen.value = true
+  isInfoDialogOpen.value = true
+}
+
+const openReserveModal = async (plane: Plane) => {
+  const token = localStorage.getItem("token")
+  if (!token) {
+    router.push('/login')
+    return
+  }
+
+  selectedPlane.value = plane
+  reservationDate.value = ''
+  isReserveDialogOpen.value = true
+
+  try {
+    const { data } = await axios.get(`/api/reservations/${plane.id}/dates`)
+    reservedDates.value = data
+  } catch (err) {
+    console.error('Failed to fetch reserved dates', err)
+    reservedDates.value = []
+  }
+}
+
+const isDateAllowed = (date: unknown) => {
+  const d = new Date(date as string)
+  const dateStr = d.toISOString().split('T')[0]
+  return !reservedDates.value.includes(dateStr)
+}
+
+const confirmReservation = async () => {
+  if (!reservationDate.value) {
+    alert('Please select a date!')
+    return
+  }
+
+  try {
+    const token = localStorage.getItem("token")
+    if (!token || !selectedPlane.value || !user.value) return
+
+    const formattedDate = new Date(reservationDate.value).toISOString().split('T')[0]
+
+    await axios.post('/api/reservations', {
+      user_id: user.value.id,
+      aircraft_id: selectedPlane.value.id,
+      airfield_id: selectedPlane.value.airfield_id,
+      reservation_date: formattedDate
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    alert(`Reservation saved for ${selectedPlane.value?.name} on ${formattedDate}`)
+    isReserveDialogOpen.value = false
+  } catch (err: any) {
+    console.error(err)
+    if (err.response?.data?.error) {
+      alert(err.response.data.error)
+    } else {
+      alert("Failed to save reservation!")
+    }
+  }
 }
 </script>
 
 <style scoped>
 .v-card .v-card-text {
-  height: 5em;
+  height: auto;
 }
 
 .v-dialog .v-card {
@@ -140,5 +256,4 @@ const openModal = (plane: Plane) => {
 .close-btn:hover {
   color: #000;
 }
-
 </style>
