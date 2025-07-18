@@ -79,7 +79,8 @@ INSERT INTO airfields (name) VALUES
 ('Riverside Airfield'),
 ('Silverstone Airfield'),
 ('Maplewood Airfield'),
-('Eastgate Airfield');
+('Eastgate Airfield'),
+('Adrien and Amadou"s room');
 
 -- Insert example images
 INSERT INTO images (title, image_url) VALUES
@@ -102,7 +103,8 @@ INSERT INTO images (title, image_url) VALUES
 ('Turbo Stationair', 'src/assets/img/Turbo_Stationair.jpg'),
 ('WAIEX-B Sonex', 'src/assets/img/WAIEX-B_Sonex.jpg'),
 ('X-Air LS', 'src/assets/img/X-Air_LS.jpg'),
-('XWING FIGHTER', 'src/assets/img/XWING_FIGHTER.png');
+('XWING FIGHTER', 'src/assets/img/XWING_FIGHTER.png'),
+('BISSAP Aircraft', 'src/assets/img/bissap.jpg');
 
 -- Insert example aircraft (linked to images and airfields)
 INSERT INTO aircraft 
@@ -126,4 +128,6 @@ INSERT INTO aircraft
 ('Turbo Stationair', 'Cessna', '206H Stationair', 'F-TSTN', 2020, 420.00, 470.00, 720.00, 6, 1200, 230, 1, 180, 17, 2, 'Versatile single-engine with high capacity.'),
 ('WAIEX-B Sonex', 'Sonex Aircraft', 'WAIEX-B', 'F-WXBS', 2019, 350.00, 400.00, 650.00, 2, 800, 180, 0, 30, 18, 3, 'American kitplane for homebuilders.'),
 ('X-Air LS', 'Rand Kar', 'X-Air LS', 'F-XALS', 2016, 280.00, 330.00, 580.00, 2, 600, 160, 0, 25, 19, 4, 'French ULM, simple and economical.'),
-('XWING FIGHTER', 'Incom Corporation', 'T-65 X-Wing', 'F-XWNG', 4561, 1000.00, 1050.00, 1300.00, 4, 5000, 3000, 1, 0, 20, 5, 'I am your father... Luke');
+('XWING FIGHTER', 'Incom Corporation', 'T-65 X-Wing', 'F-XWNG', 4561, 1000.00, 1050.00, 1300.00, 4, 5000, 3000, 1, 0, 20, 5, 'I am your father... Luke'),
+('BISSAP Aircraft', 'Bissap Industries', 'Fairy', 'F-BSSP', 2025, 800.00, 850.00, 1000.00, 2, 4000, 2500, 1, 0, 21, 6, 'Buy one, get one for free!');
+
