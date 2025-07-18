@@ -5,30 +5,35 @@
       <p class="subtitle">Welcome to <i>Air Franche Compté ! </i><br>Please fill in the form to register</p>
 
       <form @submit.prevent="register">
+        <label for="firstName">First Name</label>
         <input
           v-model="firstName"
           placeholder="First Name"
           type="text"
           required
         />
+        <label for="lastName">Last Name</label>
         <input
           v-model="lastName"
           placeholder="Last Name"
           type="text"
           required
         />
+        <label for="email">Email</label>
         <input
           v-model="email"
           placeholder="Email"
           type="email"
           required
         />
+        <label for="username">Username</label>
         <input
           v-model="username"
           placeholder="Username"
           type="text"
           required
         />
+        <label for="password">Password</label>
         <input
           v-model="password"
           placeholder="Password"
@@ -125,10 +130,17 @@ function goToLogin() {
 .login-card form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+}
+
+.login-card label {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.25rem;
+  text-align: left;
 }
 
 .login-card input {
+  margin-bottom: 1rem;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 8px;

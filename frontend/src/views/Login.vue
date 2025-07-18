@@ -7,12 +7,14 @@
       </p>
 
       <form @submit.prevent="login">
+        <label for="username">Username</label>
         <input
           v-model="username"
           placeholder="Username"
           type="text"
           required
         />
+        <label for="password">Password</label>
         <input
           v-model="password"
           placeholder="Password"
@@ -120,10 +122,17 @@ function goToRegister() {
 .login-card form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+}
+
+.login-card label {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.25rem;
+  text-align: left;
 }
 
 .login-card input {
+  margin-bottom: 1rem;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 8px;

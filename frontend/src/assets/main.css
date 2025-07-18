@@ -35,6 +35,3 @@ nav, *::before, *::after {
   object-fit: fill !important;
 }
 
-.v-card .v-card-text {
-  height: 5em;
-}

@@ -5,9 +5,13 @@
       <p class="subtitle">Edit your personal information</p>
 
       <form @submit.prevent="saveChanges">
+        <label for="firstName">First Name</label>
         <input type="text" v-model="firstName" placeholder="First Name" />
+        <label for="lastName">Last Name</label>
         <input type="text" v-model="lastName" placeholder="Last Name" />
+        <label for="email">Email</label>
         <input type="email" v-model="email" placeholder="Email" />
+        <label for="username">Username</label>
         <input type="text" v-model="username" readonly placeholder="Username" />
         <button type="submit">Save Changes</button>
       </form>
@@ -136,10 +140,17 @@ function logout() {
 .profile-card form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+}
+
+.profile-card label {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.25rem;
+  text-align: left;
 }
 
 .profile-card input {
+  margin-bottom: 1rem;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 8px;
