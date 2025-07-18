@@ -50,7 +50,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const sampleAircraft = [
   {
     name: "Jabiru J430",

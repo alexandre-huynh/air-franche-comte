@@ -20,7 +20,16 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
+/// <reference types="@types/google.maps" />
 import { onMounted } from 'vue'
+
+// Déclaration explicite de initMaps pour TypeScript
+declare global {
+  interface Window {
+    initMaps: () => void;
+  }
+}
 
 const airports = [
   {
@@ -67,7 +76,10 @@ onMounted(() => {
 
   window.initMaps = () => {
     airports.forEach((airport, index) => {
-      const map = new google.maps.Map(document.getElementById(`map-${index}`), {
+      const element = document.getElementById(`map-${index}`)
+      if (!element) return
+
+      const map = new google.maps.Map(element, {
         center: { lat: airport.lat, lng: airport.lng },
         zoom: 14
       })
