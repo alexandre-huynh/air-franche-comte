@@ -40,6 +40,13 @@
           type="password"
           required
         />
+        <label for="confirmPass">Confirm Password</label>
+        <input
+          v-model="confirmPass"
+          placeholder="Confirm Password"
+          type="password"
+          required
+        />
         <button type="submit">Register</button>
       </form>
 
@@ -62,9 +69,15 @@ const lastName = ref('')
 const email = ref('')
 const username = ref('')
 const password = ref('')
+const confirmPass = ref('')
 const router = useRouter()
 
 async function register() {
+  if (password.value !== confirmPass.value) {
+    alert("Passwords do not match.");
+    return;
+  }
+
   const res = await fetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -81,7 +94,8 @@ async function register() {
     alert('Registration successful! Please login.')
     await router.push('/login')
   } else {
-    alert('Registration failed. Please try again.')
+    const data = await res.json();
+    alert('Registration failed: ' + data.message + '\n\nPlease try again' );
   }
 }
 
