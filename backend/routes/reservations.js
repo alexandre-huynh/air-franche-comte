@@ -49,5 +49,30 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to save reservation' })
   }
 })
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { status } = req.body
+
+    const validStatuses = ['pending', 'confirmed', 'cancelled']
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' })
+    }
+
+    const [existing] = await db.query(`SELECT * FROM reservations WHERE id = ?`, [id])
+    if (existing.length === 0) {
+      return res.status(404).json({ error: 'Reservation not found' })
+    }
+
+    await db.query(`UPDATE reservations SET status = ? WHERE id = ?`, [status, id])
+
+    res.json({ message: 'Reservation status updated', status })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Failed to update status' })
+  }
+})
+
 
 module.exports = router

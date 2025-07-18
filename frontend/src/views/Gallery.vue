@@ -58,8 +58,8 @@
         </v-card-title>
         <v-card-subtitle>Select your date below</v-card-subtitle>
         <v-card-text>
-          <p v-if="user">
-            <strong>You are logged in as:</strong> {{ user.first_name }} {{ user.last_name }}
+          <p v-if="sessionUser">
+            <strong>You are logged in as:</strong> {{ sessionUser.first_name }} {{ sessionUser.last_name }}
           </p>
 
           <p><strong>Base price:</strong> ${{ selectedPlane.price }}</p>
@@ -84,6 +84,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { token, sessionUser } from '../stores/auth.ts'
 import axios from 'axios'
 
 const router = useRouter()
@@ -116,7 +117,6 @@ const isReserveDialogOpen = ref(false)
 const reservationDate = ref('')
 const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD
 
-const user = ref<{ id: number, first_name: string, last_name: string } | null>(null)
 const reservedDates = ref<string[]>([])
 
 onMounted(async () => {
@@ -126,11 +126,6 @@ onMounted(async () => {
   } catch (err) {
     console.error('Failed to load planes:', err)
   }
-
-  const storedUser = localStorage.getItem("user")
-  if (storedUser) {
-    user.value = JSON.parse(storedUser)
-  }
 })
 
 const openInfoModal = (plane: Plane) => {
@@ -139,8 +134,7 @@ const openInfoModal = (plane: Plane) => {
 }
 
 const openReserveModal = async (plane: Plane) => {
-  const token = localStorage.getItem("token")
-  if (!token) {
+  if (!token.value) {
     router.push('/login')
     return
   }
@@ -171,19 +165,18 @@ const confirmReservation = async () => {
   }
 
   try {
-    const token = localStorage.getItem("token")
-    if (!token || !selectedPlane.value || !user.value) return
+    if (!token.value || !selectedPlane.value || !sessionUser.value) return
 
     const formattedDate = new Date(reservationDate.value).toISOString().split('T')[0]
 
     await axios.post('/api/reservations', {
-      user_id: user.value.id,
+      user_id: sessionUser.value.id,
       aircraft_id: selectedPlane.value.id,
       airfield_id: selectedPlane.value.airfield_id,
       reservation_date: formattedDate
     }, {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token.value}`
       }
     })
 

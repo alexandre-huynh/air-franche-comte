@@ -2,6 +2,13 @@
 CREATE DATABASE IF NOT EXISTS air_franche_comte;
 USE air_franche_comte;
 
+-- Drop tables in reverse order of dependencies
+DROP TABLE IF EXISTS reservations;
+DROP TABLE IF EXISTS aircraft;
+DROP TABLE IF EXISTS airfields;
+DROP TABLE IF EXISTS images;
+DROP TABLE IF EXISTS users;
+
 -- Table: users
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
