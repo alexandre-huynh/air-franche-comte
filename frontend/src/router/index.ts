@@ -5,6 +5,7 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Profile from '../views/Profile.vue'
 import Gallery from '../views/Gallery.vue'
+import Upload from '../views/Upload.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -13,6 +14,7 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/gallery', name: 'gallery', component: Gallery },
+  { path: '/upload', component: Upload },
 ]
 
 const router = createRouter({

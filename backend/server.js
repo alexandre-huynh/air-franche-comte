@@ -1,6 +1,7 @@
 /*===========INIT===========*/
 const express = require('express');
 const helmet = require('helmet');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -16,12 +17,13 @@ app.use(express.json());
 app.use(helmet());
 
 /*===========API===========*/
+app.use('/uploads', express.static(path.join(__dirname, '../frontend/src/assets/img_uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/aircraft', require('./routes/aircraft'));
 app.use('/api/reservations', require('./routes/reservations'));
 app.use('/api/profile', require('./routes/profile'));
 
-//app.use('/api/profile', profileRoutes);
+app.use('/api/file', require('./routes/upload'));
 
 /*===========START SERVER APP===========*/
 app.listen(port, hostname, () => {
