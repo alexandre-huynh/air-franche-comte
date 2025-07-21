@@ -7,7 +7,7 @@
       <!-- Section photo de profil -->
       <div class="profile-photo-section">
         <img
-          :src="sessionUser?.avatar_url || profilePhotoPreview || defaultPhoto"
+          :src="profilePhotoPreview || sessionUser?.avatar_url || defaultPhoto"
           alt="Profile Photo"
           class="profile-photo"
         />
@@ -83,8 +83,6 @@ import {
 } from '@/stores/auth'
 
 import ReservationPopup from '@/components/ReservationPopup.vue'
-
-// Import de l'image par défaut
 import defaultPhoto from '../assets/user.png'
 
 const router = useRouter()
